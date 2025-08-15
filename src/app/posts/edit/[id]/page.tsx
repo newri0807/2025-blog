@@ -1,9 +1,10 @@
 import {PostForm} from "@/components/post-form";
 import {AdminGuard} from "@/components/admin-guard";
 import {notFound} from "next/navigation";
+import { getBaseUrl } from '@/lib/utils';
 
 async function getPost(id: string) {
-    const baseUrl = process.env.NODE_ENV === "production" ? "https://your-domain.vercel.app" : "http://localhost:3000";
+    const baseUrl = getBaseUrl();
 
     const response = await fetch(`${baseUrl}/api/posts/${id}`, {
         cache: "no-store",

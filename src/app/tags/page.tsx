@@ -1,3 +1,4 @@
+import {getBaseUrl} from "@/lib/utils";
 import {Tag} from "@/types/post";
 import Link from "next/link";
 
@@ -5,7 +6,7 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 async function getTags() {
-    const baseUrl = process.env.NODE_ENV === "production" ? "https://your-domain.vercel.app" : "http://localhost:3000";
+    const baseUrl = getBaseUrl();
 
     try {
         const response = await fetch(`${baseUrl}/api/tags`, {

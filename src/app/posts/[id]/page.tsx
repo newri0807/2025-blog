@@ -1,11 +1,11 @@
 import {CommentSection} from "@/components/comment-section";
 import {LikeButton} from "@/components/like-button";
+import {getBaseUrl} from "@/lib/utils";
 import Link from "next/link";
 import {notFound} from "next/navigation";
 
 async function getPost(id: string) {
-    const baseUrl = process.env.NODE_ENV === "production" ? "https://your-domain.vercel.app" : "http://localhost:3000";
-
+    const baseUrl = getBaseUrl();
     const response = await fetch(`${baseUrl}/api/posts/${id}`, {
         cache: "no-store",
     });

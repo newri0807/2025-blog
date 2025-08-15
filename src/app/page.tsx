@@ -1,11 +1,12 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 import {PostCard} from "@/components/post-card";
 import {TagFilter} from "@/components/tag-filter";
+import {getBaseUrl} from "@/lib/utils";
 import {Post} from "@/types/post";
 
 async function getPosts(tag?: string) {
     try {
-        const baseUrl = process.env.NODE_ENV === "production" ? "https://your-domain.vercel.app" : "http://localhost:3000";
+        const baseUrl = getBaseUrl();
 
         const url = tag ? `${baseUrl}/api/posts?tag=${encodeURIComponent(tag)}` : `${baseUrl}/api/posts`;
 
@@ -27,7 +28,7 @@ async function getPosts(tag?: string) {
 
 async function getTags() {
     try {
-        const baseUrl = process.env.NODE_ENV === "production" ? "https://your-domain.vercel.app" : "http://localhost:3000";
+        const baseUrl = getBaseUrl();
 
         const response = await fetch(`${baseUrl}/api/tags`, {
             cache: "no-store",
