@@ -132,6 +132,6 @@ export const authOptions: NextAuthOptions = {
     session: {
         strategy: "jwt",
     },
-    // 변경: 개발환경에서 디버깅 활성화
+    // 개발환경에서 디버깅 활성화
     debug: process.env.NODE_ENV === "development",
 };

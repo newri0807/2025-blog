@@ -21,7 +21,6 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
             <body className={inter.className} suppressHydrationWarning={true}>
                 <Providers>
                     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                        {/* 변경: 이제 정의된 커스텀 다크 배경색 사용 가능 */}
                         <div className="min-h-screen bg-white dark:bg-dark-bg-custom transition-colors">
                             <header className="bg-white dark:bg-dark-bg-custom border-b border-gray-200 dark:border-gray-700">
                                 <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">

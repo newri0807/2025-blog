@@ -3,6 +3,8 @@ import {LikeButton} from "@/components/like-button";
 import {getBaseUrl} from "@/lib/utils";
 import Link from "next/link";
 import {notFound} from "next/navigation";
+import {getServerSession} from "next-auth";
+import {authOptions} from "@/lib/auth";
 
 async function getPost(id: string) {
     const baseUrl = getBaseUrl();
@@ -17,6 +19,12 @@ async function getPost(id: string) {
     return response.json();
 }
 
+export async function isAdminAction() {
+    "use server";
+    const session = await getServerSession(authOptions);
+    return !!session?.user?.isAdmin;
+}
+
 export default async function PostDetail({params}: {params: Promise<{id: string}>}) {
     const {id} = await params;
     const post = await getPost(id);
@@ -24,6 +32,8 @@ export default async function PostDetail({params}: {params: Promise<{id: string}
     if (!post) {
         notFound();
     }
+
+    const isAdmin = await isAdminAction();
 
     return (
         <div className="max-w-4xl mx-auto bg-white dark:bg-gray-900">
@@ -63,12 +73,15 @@ export default async function PostDetail({params}: {params: Promise<{id: string}
                     </div>
 
                     <div className="flex gap-2 ml-4">
-                        <Link
-                            href={`/posts/edit/${post.id}`}
-                            className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                        >
-                            수정
-                        </Link>
+                        {/* 관리자일 때만 수정 버튼 표시 */}
+                        {isAdmin && (
+                            <Link
+                                href={`/posts/edit/${post.id}`}
+                                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                            >
+                                수정
+                            </Link>
+                        )}
                         <LikeButton postId={post.id} />
                     </div>
                 </div>

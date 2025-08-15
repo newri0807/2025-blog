@@ -4,14 +4,7 @@ import {useRef, useState} from "react";
 import {useRouter} from "next/navigation";
 import {hasPendingUploads, RichTextEditor} from "./rich-text-editor";
 import {TagInput} from "./tag-input";
-
-interface Post {
-    id?: number;
-    title: string;
-    content: string;
-    excerpt: string;
-    tags?: string[];
-}
+import {Post} from "@/types/post";
 
 interface PostFormProps {
     post?: Post;
@@ -28,7 +21,7 @@ export function PostForm({post, isEdit = false}: PostFormProps) {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const editorRef = useRef<any>(null); // CKEditor ref
+    const editorRef = useRef<any>(null);
 
     const generateExcerpt = (htmlContent: string): string => {
         const tempDiv = document.createElement("div");
@@ -40,7 +33,6 @@ export function PostForm({post, isEdit = false}: PostFormProps) {
             return text.trim();
         }
 
-        // fallback: 전체 텍스트 중 앞부분 150자
         const textContent = tempDiv.textContent || "";
         return textContent.trim().substring(0, 150);
     };
@@ -61,13 +53,12 @@ export function PostForm({post, isEdit = false}: PostFormProps) {
         const hasText = text.length > 0;
         const hasImage = !!temp.querySelector("img") || !!temp.querySelector("figure.image");
 
-        return !(hasText || hasImage); // 텍스트도 없고 이미지도 없으면 true → "빈 콘텐츠"
+        return !(hasText || hasImage);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // 👇 업로드 중인 이미지 확인
         if (editorRef.current && hasPendingUploads(editorRef.current.editor)) {
             alert("이미지 업로드가 완료될 때까지 기다려주세요.");
             return;
@@ -94,10 +85,13 @@ export function PostForm({post, isEdit = false}: PostFormProps) {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify(finalFormData),
+                cache: "no-store",
             });
 
             if (response.ok) {
                 const result = await response.json();
+                window.dispatchEvent(new Event("tags:refresh"));
+                router.refresh();
                 router.push(`/posts/${result.id}`);
             } else {
                 const error = await response.json();
@@ -120,9 +114,12 @@ export function PostForm({post, isEdit = false}: PostFormProps) {
         try {
             const res = await fetch(`/api/posts/${post.id}`, {
                 method: "DELETE",
+                cache: "no-store",
             });
 
             if (res.ok) {
+                window.dispatchEvent(new Event("tags:refresh"));
+                router.refresh();
                 router.push("/");
             } else {
                 const data = await res.json();
@@ -132,6 +129,8 @@ export function PostForm({post, isEdit = false}: PostFormProps) {
             console.error("삭제 실패:", err);
             alert("삭제에 실패했습니다.");
         } finally {
+            // 태그 사이드바에 즉시 새로고침 신호 보내기
+            window.dispatchEvent(new Event("tags:refresh"));
             setLoading(false);
         }
     };

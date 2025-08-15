@@ -1,6 +1,6 @@
 "use client";
 
-import {useState, useEffect} from "react";
+import {useState, useEffect, useMemo, useCallback} from "react";
 import Link from "next/link";
 import {Search, Tag} from "lucide-react";
 
@@ -13,34 +13,48 @@ interface TagData {
 export function TagSidebar() {
     const [tags, setTags] = useState<TagData[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [filteredTags, setFilteredTags] = useState<TagData[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchTags();
-    }, []);
+    const filteredTags = useMemo(() => {
+        if (!searchTerm.trim()) return tags;
+        return tags.filter((tag) => tag.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    }, [tags, searchTerm]);
 
-    useEffect(() => {
-        if (searchTerm.trim()) {
-            const filtered = tags.filter((tag) => tag.name.toLowerCase().includes(searchTerm.toLowerCase()));
-            setFilteredTags(filtered);
-        } else {
-            setFilteredTags(tags);
-        }
-    }, [searchTerm, tags]);
-
-    const fetchTags = async () => {
+    const fetchTags = useCallback(async () => {
         try {
-            const response = await fetch("/api/tags");
+            const response = await fetch("/api/tags", {
+                cache: "no-store",
+                headers: {"Cache-Control": "no-store"},
+            });
             const data = await response.json();
             setTags(data);
-            setFilteredTags(data);
         } catch (error) {
             console.error("태그 가져오기 실패:", error);
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        fetchTags();
+    }, [fetchTags]);
+
+    useEffect(() => {
+        let timeoutId: NodeJS.Timeout;
+
+        const handleFocus = () => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                fetchTags();
+            }, 100);
+        };
+
+        window.addEventListener("focus", handleFocus);
+        return () => {
+            window.removeEventListener("focus", handleFocus);
+            clearTimeout(timeoutId);
+        };
+    }, [fetchTags]);
 
     if (loading) {
         return (
@@ -64,7 +78,6 @@ export function TagSidebar() {
                 태그 목록
             </h3>
 
-            {/* 검색 입력 */}
             <div className="relative mb-4">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
@@ -76,7 +89,6 @@ export function TagSidebar() {
                 />
             </div>
 
-            {/* 태그 목록 */}
             <div className="space-y-1 max-h-96 overflow-y-auto">
                 {filteredTags.length > 0 ? (
                     filteredTags.map((tag) => (
@@ -94,15 +106,12 @@ export function TagSidebar() {
                         </Link>
                     ))
                 ) : searchTerm ? (
-                    <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
-                        `&quot;`{searchTerm}`&quot;`에 해당하는 태그가 없습니다.
-                    </p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">&quot;{searchTerm}&quot;에 해당하는 태그가 없습니다.</p>
                 ) : (
                     <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">아직 태그가 없습니다.</p>
                 )}
             </div>
 
-            {/* 태그 통계 */}
             {tags.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                     <p className="text-xs text-gray-500 dark:text-gray-400">총 {tags.length}개의 태그</p>

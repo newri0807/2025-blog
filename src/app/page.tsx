@@ -1,11 +1,10 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 import {PostCard} from "@/components/post-card";
 import {TagFilter} from "@/components/tag-filter";
-import {debugBaseUrl, getBaseUrl} from "@/lib/utils";
+import {getBaseUrl} from "@/lib/utils";
 import {Post} from "@/types/post";
 
 async function getPosts(tag?: string) {
-    debugBaseUrl();
     try {
         const baseUrl = getBaseUrl();
 
@@ -28,7 +27,6 @@ async function getPosts(tag?: string) {
 }
 
 async function getTags() {
-    debugBaseUrl();
     try {
         const baseUrl = getBaseUrl();
 

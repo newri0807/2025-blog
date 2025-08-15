@@ -2,6 +2,7 @@ import {NextRequest, NextResponse} from "next/server";
 import {db} from "@/lib/db";
 import {tags} from "@/lib/schema";
 import {desc, sql} from "drizzle-orm";
+import {revalidateTag} from "next/cache";
 
 export async function GET(request: NextRequest) {
     try {
@@ -21,7 +22,11 @@ export async function GET(request: NextRequest) {
             allTags = await db.select().from(tags).orderBy(desc(tags.count));
         }
 
-        return NextResponse.json(allTags);
+        return NextResponse.json(allTags, {
+            headers: {
+                "Cache-Control": "public, s-maxage=60, stale-while-revalidate=30",
+            },
+        });
     } catch (error) {
         console.error("태그 조회 실패:", error);
         return NextResponse.json({error: "Failed to fetch tags"}, {status: 500});
@@ -57,6 +62,8 @@ export async function POST(request: NextRequest) {
             })
             .returning();
 
+        // 새 태그 생성 후 캐시 무효화
+        revalidateTag("tags");
         return NextResponse.json(newTag[0], {status: 201});
     } catch (error) {
         console.error("태그 생성 실패:", error);

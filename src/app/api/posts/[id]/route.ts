@@ -4,6 +4,7 @@ import {authOptions} from "@/lib/auth";
 import {db} from "@/lib/db";
 import {posts, tags} from "@/lib/schema";
 import {eq, sql} from "drizzle-orm";
+import {revalidateTag} from "next/cache";
 
 export async function GET(request: NextRequest, {params}: {params: Promise<{id: string}>}) {
     try {
@@ -88,6 +89,11 @@ export async function PUT(request: NextRequest, {params}: {params: Promise<{id: 
             }
         }
 
+        // 수정 후 관련 캐시 무효화
+        revalidateTag("posts");
+        revalidateTag("tags");
+        revalidateTag(`post-${id}`);
+
         return NextResponse.json(updatedPost[0]);
     } catch (error) {
         console.error("게시글 수정 실패:", error);
@@ -128,6 +134,11 @@ export async function DELETE(request: NextRequest, {params}: {params: Promise<{i
                 .set({count: sql`${tags.count} - 1`})
                 .where(eq(tags.name, tagName.toLowerCase()));
         }
+
+        // 삭제 후 관련 캐시 모두 무효화
+        revalidateTag("posts");
+        revalidateTag("tags");
+        revalidateTag(`post-${id}`);
 
         return NextResponse.json({message: "Post deleted successfully"});
     } catch (error) {
