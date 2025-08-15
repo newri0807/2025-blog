@@ -3,41 +3,42 @@
 @tailwind utilities;
 
 /* 기본 레이아웃만 */
-body, html {
-  max-width: 1200px;
-  margin: 0 auto;
+body,
+html {
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 /* CKEditor만 커스텀 필요 */
 .ckeditor-wrapper .ck-editor__editable {
-  min-height: 400px !important;
+    min-height: 400px !important;
 }
 
 .dark .ckeditor-wrapper .ck-editor__editable {
-  background-color: rgb(31 41 55) !important;
-  color: rgb(243 244 246) !important;
+    background-color: rgb(31 41 55) !important;
+    color: rgb(243 244 246) !important;
 }
 
 .dark .ckeditor-wrapper .ck-toolbar {
-  background-color: rgb(31 41 55) !important;
-  border-color: rgb(75 85 99) !important;
+    background-color: #111827 !important;
+    border-color: rgb(75 85 99) !important;
 }
 
 .dark .ckeditor-wrapper .ck-button {
-  color: rgb(243 244 246) !important;
+    color: rgb(243 244 246) !important;
 }
 
 /* 텍스트 잘림 유틸리티 */
 .line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .line-clamp-3 {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
