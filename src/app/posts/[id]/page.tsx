@@ -19,12 +19,6 @@ async function getPost(id: string) {
     return response.json();
 }
 
-export async function isAdminAction() {
-    "use server";
-    const session = await getServerSession(authOptions);
-    return !!session?.user?.isAdmin;
-}
-
 export default async function PostDetail({params}: {params: Promise<{id: string}>}) {
     const {id} = await params;
     const post = await getPost(id);
@@ -33,8 +27,8 @@ export default async function PostDetail({params}: {params: Promise<{id: string}
         notFound();
     }
 
-    const isAdmin = await isAdminAction();
-
+    const session = await getServerSession(authOptions);
+    const isAdmin = !!session?.user?.isAdmin;
     return (
         <div className="max-w-4xl mx-auto bg-white dark:bg-gray-900">
             <article>
